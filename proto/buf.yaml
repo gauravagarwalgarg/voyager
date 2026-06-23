@@ -1,0 +1,12 @@
+version: v2
+modules:
+  - path: .
+    name: buf.build/gauravagarwalgarg/voyager
+deps:
+  - buf.build/googleapis/googleapis
+breaking:
+  use:
+    - FILE
+lint:
+  use:
+    - DEFAULT

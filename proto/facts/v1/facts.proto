@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package voyager.facts.v1;
+
+option go_package = "github.com/GauravAgarwalGarg/voyager/gen/facts/v1;factsv1";
+
+import "google/protobuf/timestamp.proto";
+
+service FactsService {
+  // Get a random fact
+  rpc GetRandom(GetRandomRequest) returns (Fact);
+  // Get facts by category
+  rpc GetByCategory(GetByCategoryRequest) returns (FactList);
+  // Create a new fact
+  rpc Create(CreateFactRequest) returns (Fact);
+  // List all categories
+  rpc ListCategories(ListCategoriesRequest) returns (CategoryList);
+}
+
+message GetRandomRequest {
+  string category = 1; // optional: filter by category
+}
+
+message GetByCategoryRequest {
+  string category = 1;
+  int32 limit = 2;
+}
+
+message CreateFactRequest {
+  string text = 1;
+  string category = 2;
+  string source = 3;
+}
+
+message ListCategoriesRequest {}
+
+message Fact {
+  string id = 1;
+  string text = 2;
+  string category = 3;
+  string source = 4;
+  google.protobuf.Timestamp created_at = 5;
+}
+
+message FactList {
+  repeated Fact facts = 1;
+  int32 total = 2;
+}
+
+message CategoryList {
+  repeated string categories = 1;
+}

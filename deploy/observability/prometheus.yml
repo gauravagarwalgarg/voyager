@@ -1,0 +1,31 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'api-gateway'
+    static_configs:
+      - targets: ['host.docker.internal:8080']
+    metrics_path: /metrics
+
+  - job_name: 'image-svc'
+    static_configs:
+      - targets: ['host.docker.internal:50051']
+    metrics_path: /metrics
+
+  - job_name: 'facts-svc'
+    static_configs:
+      - targets: ['host.docker.internal:50052']
+    metrics_path: /metrics
+
+  - job_name: 'worker-svc'
+    static_configs:
+      - targets: ['host.docker.internal:50053']
+    metrics_path: /metrics
+
+  - job_name: 'nsq'
+    static_configs:
+      - targets: ['nsqd:4151']
+    metrics_path: /stats
+    params:
+      format: ['prometheus']

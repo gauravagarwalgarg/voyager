@@ -1,0 +1,106 @@
+syntax = "proto3";
+
+package voyager.image.v1;
+
+option go_package = "github.com/GauravAgarwalGarg/voyager/gen/image/v1;imagev1";
+
+import "google/protobuf/timestamp.proto";
+
+service ImageService {
+  // Upload a new image
+  rpc Upload(UploadRequest) returns (UploadResponse);
+  // Get a single image by ID
+  rpc Get(GetRequest) returns (Image);
+  // List images with pagination
+  rpc List(ListRequest) returns (ListResponse);
+  // Delete an image
+  rpc Delete(DeleteRequest) returns (DeleteResponse);
+  // Stream newly uploaded images in real-time
+  rpc StreamNew(StreamRequest) returns (stream Image);
+}
+
+message UploadRequest {
+  string title = 1;
+  string description = 2;
+  repeated string tags = 3;
+  bytes content = 4;
+  string filename = 5;
+  string content_type = 6;
+}
+
+message UploadResponse {
+  string id = 1;
+  string status = 2;
+}
+
+message GetRequest {
+  string id = 1;
+}
+
+message ListRequest {
+  int32 limit = 1;
+  string cursor = 2;
+  repeated string tags = 3;
+}
+
+message ListResponse {
+  repeated Image images = 1;
+  string next_cursor = 2;
+  int32 total = 3;
+}
+
+message DeleteRequest {
+  string id = 1;
+}
+
+message DeleteResponse {
+  bool success = 1;
+}
+
+message StreamRequest {
+  int32 buffer_size = 1;
+}
+
+message Image {
+  string id = 1;
+  string title = 2;
+  string description = 3;
+  repeated string tags = 4;
+  string url = 5;
+  string thumbnail_url = 6;
+  ImageStatus status = 7;
+  ImageMetadata metadata = 8;
+  google.protobuf.Timestamp created_at = 9;
+  string uploader_id = 10;
+  Fact associated_fact = 11;
+}
+
+enum ImageStatus {
+  IMAGE_STATUS_UNSPECIFIED = 0;
+  IMAGE_STATUS_PENDING = 1;
+  IMAGE_STATUS_PROCESSING = 2;
+  IMAGE_STATUS_READY = 3;
+  IMAGE_STATUS_FAILED = 4;
+}
+
+message ImageMetadata {
+  int32 width = 1;
+  int32 height = 2;
+  string format = 3;
+  int64 size_bytes = 4;
+  ExifData exif = 5;
+}
+
+message ExifData {
+  string camera_make = 1;
+  string camera_model = 2;
+  double latitude = 3;
+  double longitude = 4;
+  google.protobuf.Timestamp taken_at = 5;
+}
+
+message Fact {
+  string id = 1;
+  string text = 2;
+  string category = 3;
+}
