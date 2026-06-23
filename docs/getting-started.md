@@ -91,7 +91,7 @@ voyager/
 
 ---
 
-## 3. "Hello World" — Go vs Python
+## 3. "Hello World" Go vs Python
 
 ### Python
 
@@ -155,7 +155,7 @@ graph TD
 
 ### Reading Tips
 
-1. **Start with `main.go`** in each service. It shows you the "skeleton" — what gets initialized, what runs.
+1. **Start with `main.go`** in each service. It shows you the "skeleton" what gets initialized, what runs.
 2. **Follow the imports**. If you see `"voyager/internal/image"`, go read that package next.
 3. **Look for interfaces**. They tell you WHAT a component does without the HOW.
 4. **Read tests**. `*_test.go` files show you how the code is meant to be used.
@@ -378,7 +378,7 @@ x := 42       // ERROR if you never use x
 _ = x  // "I know about x, I'll use it later"
 ```
 
-### Gotcha 2: No exceptions — errors are values
+### Gotcha 2: No exceptions errors are values
 
 ```python
 # Python: try/except
@@ -400,7 +400,7 @@ if err != nil {
 
 Yes, you write `if err != nil` a LOT. It's the Go way. You get used to it.
 
-### Gotcha 3: No classes — use structs + methods
+### Gotcha 3: No classes use structs + methods
 
 ```python
 # Python

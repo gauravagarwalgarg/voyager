@@ -34,7 +34,7 @@ Good question! Here's why that's a bad idea:
 |----------------|--------------|
 | Users need to know about every service URL | One URL for everything: `localhost:8080` |
 | Each service needs its own auth code | Auth happens once, at the gateway |
-| No rate limiting — someone can DDoS your image service | Gateway says "slow down buddy" |
+| No rate limiting someone can DDoS your image service | Gateway says "slow down buddy" |
 | Service addresses change when you scale up | Gateway handles routing internally |
 | Every service needs HTTPS certificates | Only the gateway needs a certificate |
 | Can't log all requests centrally | Gateway logs everything in one place |
@@ -45,9 +45,9 @@ Think of it like this: you don't want every restaurant employee dealing with cus
 
 ## How HTTP Becomes gRPC (The Translator)
 
-**HTTP** is like sending a letter — it's text-based, flexible, and every web browser understands it.
+**HTTP** is like sending a letter it's text-based, flexible, and every web browser understands it.
 
-**gRPC** is like a phone call between two machines — it's fast, uses a pre-agreed binary format (Protobuf), and both sides know exactly what data to expect.
+**gRPC** is like a phone call between two machines it's fast, uses a pre-agreed binary format (Protobuf), and both sides know exactly what data to expect.
 
 Here's the translation that happens:
 
@@ -69,7 +69,7 @@ sequenceDiagram
 
 Why not just use HTTP everywhere? Because internally, gRPC is:
 - **10x faster** (binary vs text)
-- **Type-safe** (the proto file is a contract — no surprises)
+- **Type-safe** (the proto file is a contract no surprises)
 - **Supports streaming** (get a live feed of new images)
 
 ---
@@ -145,7 +145,7 @@ The JWT contains **claims** like:
 
 ## The Actual Go Code (Explained)
 
-Here's `cmd/api-gateway/main.go` — the entry point for the API Gateway:
+Here's `cmd/api-gateway/main.go` the entry point for the API Gateway:
 
 ```go
 package main
@@ -234,7 +234,7 @@ func main() {
     <-quit
 ```
 
-**What's happening**: Wait for someone to press Ctrl+C or for Kubernetes to send a shutdown signal. `<-quit` blocks here like a `input()` in Python — it just waits.
+**What's happening**: Wait for someone to press Ctrl+C or for Kubernetes to send a shutdown signal. `<-quit` blocks here like a `input()` in Python it just waits.
 
 ```go
     logger.Info("Shutting down gracefully...")

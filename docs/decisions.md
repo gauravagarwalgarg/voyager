@@ -142,7 +142,7 @@ All internal data is serialized using **Protocol Buffers** (Protobuf), not JSON.
 message Image {
   string id = 1;
   string title = 2;
-  // Field 3 was removed — numbers are never reused!
+  // Field 3 was removed numbers are never reused!
   repeated string tags = 4;
   ImageStatus status = 7;
 }
@@ -193,12 +193,12 @@ Voyager uses **NSQ** for asynchronous messaging between services.
 ### Code Example
 
 ```go
-// Publishing (producer) — that's it. 3 lines.
+// Publishing (producer) that's it. 3 lines.
 producer, _ := nsq.NewProducer("nsqd:4150", nsq.NewConfig())
 body, _ := json.Marshal(event)
 producer.Publish("image.uploaded", body)
 
-// Consuming — similarly simple
+// Consuming similarly simple
 consumer, _ := nsq.NewConsumer("image.uploaded", "worker", nsq.NewConfig())
 consumer.AddHandler(nsq.HandlerFunc(processImage))
 consumer.ConnectToNSQLookupd("nsqlookupd:4161")
@@ -212,7 +212,7 @@ consumer.ConnectToNSQLookupd("nsqlookupd:4161")
 Image metadata and facts are stored in **PostgreSQL 16**.
 
 ### Why
-- **Relational integrity**: Images have tags, users, statuses — relational queries are natural.
+- **Relational integrity**: Images have tags, users, statuses relational queries are natural.
 - **JSONB for flexibility**: The `exif` field is JSONB. We get document-style flexibility where we need it, with relational structure everywhere else.
 - **Mature and reliable**: 35+ years of development. Battle-tested at every scale.
 - **Tooling**: pgAdmin, psql, great monitoring, every ORM supports it.
@@ -474,7 +474,7 @@ All logging uses **uber-go/zap** with JSON output. No `fmt.Println` or `log.Prin
 - **Machine parseable**: JSON logs can be indexed, searched, filtered, and alerted on.
 - **Performance**: zap is the fastest Go logger (zero-allocation in hot paths).
 - **Context**: Every log line includes service name, trace ID, request ID, and structured fields.
-- **Levels**: Debug, Info, Warn, Error, Fatal — filter noise in production.
+- **Levels**: Debug, Info, Warn, Error, Fatal filter noise in production.
 
 ### Alternatives Considered
 

@@ -43,7 +43,7 @@ If we did it synchronously, the user would wait 3.5+ seconds. With async process
 
 ## What Is NSQ?
 
-NSQ is a **message queue** — think of it as a **post office for services**.
+NSQ is a **message queue** think of it as a **post office for services**.
 
 ```mermaid
 graph LR
@@ -69,8 +69,8 @@ NSQ has two key concepts:
 ### Topic = What's the message about?
 
 A topic is like a mailbox category. Voyager has:
-- `image.uploaded` — "a new image was uploaded and needs processing"
-- `image.processed` — "an image has been processed successfully"
+- `image.uploaded` "a new image was uploaded and needs processing"
+- `image.processed` "an image has been processed successfully"
 
 ### Channel = Who's reading the messages?
 
@@ -340,7 +340,7 @@ cfg.LookupdPollInterval = 15 * time.Second  // How often to discover new NSQ nod
 
 ## Why NSQ Over Kafka?
 
-You might have heard of Apache Kafka — it's the "big name" in messaging. So why choose NSQ?
+You might have heard of Apache Kafka it's the "big name" in messaging. So why choose NSQ?
 
 | Feature | NSQ | Kafka |
 |---------|-----|-------|
@@ -418,7 +418,7 @@ func main() {
 }
 ```
 
-**Key pattern**: The worker doesn't expose any ports! It's purely a consumer. It connects to NSQ, waits for messages, processes them, and that's it. No HTTP server, no gRPC server — just a message handler sitting quietly in the background.
+**Key pattern**: The worker doesn't expose any ports! It's purely a consumer. It connects to NSQ, waits for messages, processes them, and that's it. No HTTP server, no gRPC server just a message handler sitting quietly in the background.
 
 ---
 
@@ -435,7 +435,7 @@ graph TB
     CH --> W3[Worker Pod 3<br/>~33 msgs/sec]
 ```
 
-When the queue gets deep (too many unprocessed messages), Kubernetes automatically spins up more worker pods. NSQ distributes messages evenly across all consumers in the same channel. No code changes needed — just add more workers!
+When the queue gets deep (too many unprocessed messages), Kubernetes automatically spins up more worker pods. NSQ distributes messages evenly across all consumers in the same channel. No code changes needed just add more workers!
 
 ---
 

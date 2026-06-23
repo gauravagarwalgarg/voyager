@@ -26,7 +26,7 @@ graph LR
 
 ---
 
-## gRPC vs REST — Why Talk Differently Inside vs Outside?
+## gRPC vs REST Why Talk Differently Inside vs Outside?
 
 Imagine two ways of communicating:
 
@@ -47,7 +47,7 @@ Imagine two ways of communicating:
 
 ---
 
-## Protobuf — Why Not Just Use JSON?
+## Protobuf Why Not Just Use JSON?
 
 **Protobuf** (Protocol Buffers) is Google's way of defining data structures. Think of it like a contract between services.
 
@@ -91,7 +91,7 @@ This `.proto` file generates Go code automatically. If someone tries to send the
 
 ---
 
-## How Upload Works — Step by Step
+## How Upload Works Step by Step
 
 Let's follow a photo from your phone to being fully stored:
 
@@ -119,7 +119,7 @@ sequenceDiagram
 
 ---
 
-## Database Schema — Why Tables and Indexes?
+## Database Schema Why Tables and Indexes?
 
 ### The Images Table
 
@@ -174,7 +174,7 @@ Without these indexes, every query scans the entire table. With them, it's like 
 
 ---
 
-## Object Storage (MinIO/S3) — Why Not Just Save Files on Disk?
+## Object Storage (MinIO/S3) Why Not Just Save Files on Disk?
 
 ### The Problem with Disk Storage
 
@@ -186,7 +186,7 @@ Without these indexes, every query scans the entire table. With them, it's like 
 
 But what happens when:
 - Your server's disk fills up? (💀)
-- You have 3 servers — which one has the file? 
+- You have 3 servers which one has the file? 
 - Your server dies and the disk is gone? (no backup!)
 - You need to serve images from a CDN? (can't, it's on one machine)
 
@@ -222,7 +222,7 @@ voyager-images/                  ← Bucket (like a top-level folder)
 
 ---
 
-## The Go Code — Key Patterns
+## The Go Code Key Patterns
 
 ### The gRPC Server Setup
 
@@ -247,7 +247,7 @@ func main() {
     defer logger.Sync()
 ```
 
-**What's happening**: Same structured logger as the gateway. Every service starts the same way — consistency makes debugging easier.
+**What's happening**: Same structured logger as the gateway. Every service starts the same way consistency makes debugging easier.
 
 ```go
     // Create gRPC server with interceptors
@@ -257,7 +257,7 @@ func main() {
     )
 ```
 
-**What's happening**: Create a gRPC server. **Interceptors** are like middleware in HTTP — they wrap every request to add logging, tracing, or auth. `UnaryInterceptor` handles one-request-one-response calls. `StreamInterceptor` handles streaming calls.
+**What's happening**: Create a gRPC server. **Interceptors** are like middleware in HTTP they wrap every request to add logging, tracing, or auth. `UnaryInterceptor` handles one-request-one-response calls. `StreamInterceptor` handles streaming calls.
 
 ```go
     // Register health check
@@ -289,7 +289,7 @@ func main() {
     }()
 ```
 
-**What's happening**: Start listening for gRPC connections on port 50051. Same pattern as the gateway — run the server in the background, keep the main goroutine free.
+**What's happening**: Start listening for gRPC connections on port 50051. Same pattern as the gateway run the server in the background, keep the main goroutine free.
 
 ```go
     // Graceful shutdown (same pattern as gateway)
@@ -337,7 +337,7 @@ func (m *mockRepo) GetByID(ctx context.Context, id string) (*Image, error) {
 }
 ```
 
-This is called **dependency injection** — the service doesn't care if it's talking to a real database or a fake one in tests.
+This is called **dependency injection** the service doesn't care if it's talking to a real database or a fake one in tests.
 
 ---
 

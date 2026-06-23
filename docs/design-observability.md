@@ -38,7 +38,7 @@ graph TB
 
 ## Prometheus: Counting and Timing Everything
 
-**Prometheus** is a metrics database. Think of it like a fitness tracker for your services — it records numbers over time.
+**Prometheus** is a metrics database. Think of it like a fitness tracker for your services it records numbers over time.
 
 ### How It Works
 
@@ -61,7 +61,7 @@ sequenceDiagram
     Note over P: Stores all numbers<br/>with timestamps
 ```
 
-Prometheus uses a **pull model** — it comes to your services and asks "what are your numbers?" every 15 seconds. This is different from most systems where you push data to a central collector.
+Prometheus uses a **pull model** it comes to your services and asks "what are your numbers?" every 15 seconds. This is different from most systems where you push data to a central collector.
 
 ### Types of Metrics
 
@@ -230,7 +230,7 @@ func (s *imageServer) Upload(ctx context.Context, req *UploadRequest) (*UploadRe
 }
 ```
 
-**Key insight**: Notice how `ctx` is passed to every function. The context carries the **trace ID** — that's how Tempo connects spans across services. When the gateway calls the image service via gRPC, the trace ID travels in the gRPC metadata (headers).
+**Key insight**: Notice how `ctx` is passed to every function. The context carries the **trace ID** that's how Tempo connects spans across services. When the gateway calls the image service via gRPC, the trace ID travels in the gRPC metadata (headers).
 
 ### Trace Propagation Across Services
 
@@ -261,7 +261,7 @@ All spans with `trace_id=abc123` are stitched together into one trace. Even thou
 
 ## OpenTelemetry: The Standard Way to Instrument
 
-**OpenTelemetry** (OTel) is like USB — a universal standard that works with multiple backends.
+**OpenTelemetry** (OTel) is like USB a universal standard that works with multiple backends.
 
 Without OTel, each tracing/metrics system has its own API:
 - Jaeger has its API
@@ -358,7 +358,7 @@ Each service calls `InitTracing("api-gateway", "tempo:4317")` at startup. From t
 
 ---
 
-## Example: "The API Is Slow" — How to Investigate
+## Example: "The API Is Slow" How to Investigate
 
 A user reports: "Uploading images is really slow today."
 
@@ -419,7 +419,7 @@ Every log line in Voyager is structured JSON:
 
 **Why JSON and not plain text?** Because you can search it! "Show me all logs where `user_id=user-789` and `level=error`" becomes trivial.
 
-The `trace_id` in the log links it to the trace in Tempo — you can click from a log line straight to the full trace visualization.
+The `trace_id` in the log links it to the trace in Tempo you can click from a log line straight to the full trace visualization.
 
 ---
 

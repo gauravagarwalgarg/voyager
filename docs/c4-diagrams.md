@@ -78,7 +78,7 @@ C4Container
 
 ---
 
-## Level 3: Component Diagram — API Gateway
+## Level 3: Component Diagram API Gateway
 
 What's inside the API Gateway?
 
@@ -118,7 +118,7 @@ C4Component
 
 ---
 
-## Level 3: Component Diagram — Image Service
+## Level 3: Component Diagram Image Service
 
 What's inside the Image Service?
 
@@ -155,7 +155,7 @@ C4Component
 
 ---
 
-## Level 4: Code Diagram — Image Service Key Structures
+## Level 4: Code Diagram Image Service Key Structures
 
 The lowest level. What are the key interfaces, structs, and their relationships?
 
