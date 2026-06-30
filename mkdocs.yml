@@ -1,0 +1,51 @@
+site_name: Voyager
+site_description: Cloud-native microservices platform with observability and event-driven architecture
+site_url: https://gauravagarwalgarg.github.io/voyager/
+repo_url: https://github.com/GauravAgarwalGarg/voyager
+repo_name: GauravAgarwalGarg/voyager
+
+theme:
+  name: material
+  palette:
+    - scheme: slate
+      primary: indigo
+      accent: cyan
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - content.code.copy
+    - search.suggest
+  icon:
+    repo: fontawesome/brands/github
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - admonition
+  - pymdownx.details
+  - tables
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Getting Started:
+    - For Go Beginners: getting-started.md
+    - Local Setup: local-setup.md
+  - Architecture:
+    - System Architecture: architecture.md
+    - C4 Diagrams: c4-diagrams.md
+    - Design Decisions: decisions.md
+  - Service Design:
+    - API Gateway: design-gateway.md
+    - Image Service: design-image-service.md
+    - Messaging: design-messaging.md
+    - Observability: design-observability.md
+  - Deployment:
+    - Production Deploy: deployment.md

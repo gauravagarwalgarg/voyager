@@ -1,5 +1,3 @@
-version: '3.8'
-
 # Local development infrastructure
 # Usage: docker-compose up -d
 
