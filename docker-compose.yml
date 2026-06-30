@@ -1,8 +1,112 @@
-# Local development infrastructure
-# Usage: docker-compose up -d
+# Voyager — Full Local Development Stack
+# Usage: docker compose up --build
+# Dashboard: http://localhost:8080 (API Gateway + Frontend)
 
 services:
-  # --- Core Infrastructure ---
+  # ─── Application Services ──────────────────────────────────────────────────────
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE: api-gateway
+    container_name: voyager-api-gateway
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./frontend/dist:/app/frontend/dist:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      nsqd:
+        condition: service_started
+    environment:
+      - POSTGRES_DSN=postgres://voyager:voyager-dev@postgres:5432/voyager?sslmode=disable
+      - MINIO_ENDPOINT=minio:9000
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin
+      - NSQ_ADDR=nsqd:4150
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://tempo:4317
+    restart: unless-stopped
+
+  image-svc:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE: image-svc
+    container_name: voyager-image-svc
+    ports:
+      - "50051:50051"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    environment:
+      - POSTGRES_DSN=postgres://voyager:voyager-dev@postgres:5432/voyager?sslmode=disable
+      - MINIO_ENDPOINT=minio:9000
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://tempo:4317
+    restart: unless-stopped
+
+  facts-svc:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE: facts-svc
+    container_name: voyager-facts-svc
+    ports:
+      - "50052:50052"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - POSTGRES_DSN=postgres://voyager:voyager-dev@postgres:5432/voyager?sslmode=disable
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://tempo:4317
+    restart: unless-stopped
+
+  worker-svc:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE: worker-svc
+    container_name: voyager-worker-svc
+    ports:
+      - "50053:50053"
+    depends_on:
+      nsqd:
+        condition: service_started
+      minio:
+        condition: service_healthy
+    environment:
+      - NSQ_LOOKUPD_ADDR=nsqlookupd:4161
+      - NSQ_ADDR=nsqd:4150
+      - MINIO_ENDPOINT=minio:9000
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://tempo:4317
+    restart: unless-stopped
+
+  frontend:
+    image: nginx:alpine
+    container_name: voyager-frontend
+    ports:
+      - "3001:80"
+    volumes:
+      - ./frontend/dist:/usr/share/nginx/html:ro
+      - ./frontend/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - api-gateway
+    restart: unless-stopped
+
+  # ─── Core Infrastructure ───────────────────────────────────────────────────────
 
   postgres:
     image: postgres:16-alpine
@@ -29,8 +133,8 @@ services:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
     ports:
-      - "9000:9000"   # S3 API
-      - "9001:9001"   # Console
+      - "9000:9000"
+      - "9001:9001"
     volumes:
       - minio-data:/data
     healthcheck:
@@ -39,15 +143,15 @@ services:
       timeout: 3s
       retries: 5
 
-  # --- Messaging (NSQ) ---
+  # ─── Messaging (NSQ) ──────────────────────────────────────────────────────────
 
   nsqlookupd:
     image: nsqio/nsq:latest
     container_name: voyager-nsqlookupd
     command: /nsqlookupd
     ports:
-      - "4160:4160"   # TCP
-      - "4161:4161"   # HTTP
+      - "4160:4160"
+      - "4161:4161"
 
   nsqd:
     image: nsqio/nsq:latest
@@ -56,8 +160,8 @@ services:
     depends_on:
       - nsqlookupd
     ports:
-      - "4150:4150"   # TCP
-      - "4151:4151"   # HTTP
+      - "4150:4150"
+      - "4151:4151"
 
   nsqadmin:
     image: nsqio/nsq:latest
@@ -66,9 +170,9 @@ services:
     depends_on:
       - nsqlookupd
     ports:
-      - "4171:4171"   # Web UI
+      - "4171:4171"
 
-  # --- Observability ---
+  # ─── Observability ─────────────────────────────────────────────────────────────
 
   prometheus:
     image: prom/prometheus:latest
@@ -105,9 +209,9 @@ services:
     container_name: voyager-tempo
     command: ["-config.file=/etc/tempo.yml"]
     ports:
-      - "3200:3200"   # Tempo HTTP
-      - "4317:4317"   # OTLP gRPC
-      - "4318:4318"   # OTLP HTTP
+      - "3200:3200"
+      - "4317:4317"
+      - "4318:4318"
     volumes:
       - ./deploy/observability/tempo.yml:/etc/tempo.yml:ro
       - tempo-data:/var/tempo

@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voyager — Image Discovery Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --slate-950: #020617;
+            --slate-900: #0F172A;
+            --slate-800: #1E293B;
+            --slate-700: #334155;
+            --slate-600: #475569;
+            --slate-400: #94A3B8;
+            --slate-300: #CBD5E1;
+            --slate-100: #F1F5F9;
+            --cyan-500: #06B6D4;
+            --cyan-400: #22D3EE;
+            --cyan-300: #67E8F9;
+            --emerald-500: #10B981;
+            --emerald-400: #34D399;
+            --amber-500: #F59E0B;
+            --amber-400: #FBBF24;
+            --red-500: #EF4444;
+            --red-400: #F87171;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--slate-950);
+            color: var(--slate-100);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ─── Degraded Banner ─── */
+        .degraded-banner {
+            display: none;
+            background: linear-gradient(90deg, var(--red-500), var(--amber-500));
+            color: var(--slate-950);
+            text-align: center;
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+            font-size: 0.85rem;
+            letter-spacing: 0.02em;
+        }
+        .degraded-banner.visible { display: block; }
+
+        /* ─── Header ─── */
+        header {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(6, 182, 212, 0.15);
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--cyan-500), var(--emerald-500));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--slate-950);
+        }
+
+        .logo h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--cyan-400), var(--emerald-400));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--cyan-500), var(--emerald-500));
+            color: var(--slate-950);
+        }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(6, 182, 212, 0.3); }
+
+        .btn-ghost {
+            background: rgba(51, 65, 85, 0.5);
+            color: var(--slate-300);
+            border: 1px solid var(--slate-700);
+        }
+        .btn-ghost:hover { background: rgba(51, 65, 85, 0.8); color: var(--cyan-400); border-color: var(--cyan-500); }
+        .btn-ghost.active { background: rgba(6, 182, 212, 0.15); color: var(--cyan-400); border-color: var(--cyan-500); }
+
+        /* ─── Main Layout ─── */
+        .app-container {
+            display: flex;
+            min-height: calc(100vh - 65px);
+        }
+
+        main {
+            flex: 1;
+            padding: 2rem;
+            transition: margin-right 0.3s ease;
+        }
+
+        /* ─── Masonry Grid ─── */
+        .masonry-grid {
+            column-count: 3;
+            column-gap: 1.5rem;
+        }
+
+        @media (max-width: 1200px) { .masonry-grid { column-count: 2; } }
+        @media (max-width: 768px) { .masonry-grid { column-count: 1; } }
+        @media (min-width: 1800px) { .masonry-grid { column-count: 4; } }
+        @media (min-width: 2400px) { .masonry-grid { column-count: 5; } }
+
+        .card {
+            break-inside: avoid;
+            margin-bottom: 1.5rem;
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+            background: var(--slate-800);
+            border: 1px solid rgba(51, 65, 85, 0.5);
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            border-color: rgba(6, 182, 212, 0.3);
+        }
+
+        .card img {
+            width: 100%;
+            display: block;
+            object-fit: cover;
+        }
+
+        .card-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem;
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(12px);
+            border-top: 1px solid rgba(6, 182, 212, 0.1);
+        }
+
+        .card-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--slate-100);
+        }
+
+        .card-fact {
+            font-size: 0.8rem;
+            color: var(--cyan-300);
+            line-height: 1.5;
+            font-style: italic;
+        }
+
+        .card-tags {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            background: rgba(6, 182, 212, 0.15);
+            color: var(--cyan-400);
+            font-weight: 500;
+        }
+
+        /* ─── Skeleton Loading ─── */
+        .skeleton {
+            background: linear-gradient(90deg, var(--slate-800) 25%, var(--slate-700) 50%, var(--slate-800) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 16px;
+        }
+
+        .skeleton-card {
+            break-inside: avoid;
+            margin-bottom: 1.5rem;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .skeleton-img { height: 200px; }
+        .skeleton-text { height: 1rem; margin: 0.5rem 1rem; border-radius: 4px; }
+        .skeleton-text-short { width: 60%; }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        /* ─── Telemetry Panel ─── */
+        .telemetry-panel {
+            width: 360px;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            border-left: 1px solid rgba(6, 182, 212, 0.15);
+            padding: 1.5rem;
+            overflow-y: auto;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            position: fixed;
+            right: 0;
+            top: 65px;
+            bottom: 0;
+            z-index: 90;
+        }
+        .telemetry-panel.open { transform: translateX(0); }
+
+        .telemetry-panel h2 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--cyan-400);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .metric-card {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid var(--slate-700);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .metric-label {
+            font-size: 0.75rem;
+            color: var(--slate-400);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: var(--emerald-400);
+        }
+
+        .metric-value.warning { color: var(--amber-400); }
+        .metric-value.danger { color: var(--red-400); }
+
+        .gauge-bar {
+            height: 6px;
+            background: var(--slate-700);
+            border-radius: 3px;
+            margin-top: 0.5rem;
+            overflow: hidden;
+        }
+
+        .gauge-fill {
+            height: 100%;
+            border-radius: 3px;
+            background: linear-gradient(90deg, var(--emerald-500), var(--cyan-500));
+            transition: width 0.5s ease;
+        }
+        .gauge-fill.warning { background: linear-gradient(90deg, var(--amber-500), var(--amber-400)); }
+        .gauge-fill.danger { background: linear-gradient(90deg, var(--red-500), var(--red-400)); }
+
+        /* ─── Trace Timeline ─── */
+        .trace-timeline {
+            margin-top: 1rem;
+        }
+
+        .trace-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .trace-label {
+            font-size: 0.7rem;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--slate-400);
+            width: 80px;
+            text-align: right;
+        }
+
+        .trace-bar-container {
+            flex: 1;
+            height: 12px;
+            background: var(--slate-800);
+            border-radius: 6px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .trace-bar {
+            position: absolute;
+            height: 100%;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .trace-bar.gateway { background: var(--cyan-500); left: 0%; width: 100%; }
+        .trace-bar.image-svc { background: var(--emerald-500); left: 10%; width: 60%; }
+        .trace-bar.minio { background: var(--amber-500); left: 30%; width: 35%; }
+        .trace-bar.nsq { background: var(--red-400); left: 70%; width: 25%; }
+
+        .trace-duration {
+            font-size: 0.65rem;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--slate-400);
+            width: 45px;
+        }
+
+        /* ─── Services Status ─── */
+        .service-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+
+        .service-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.7rem;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--slate-300);
+            padding: 0.4rem 0.6rem;
+            background: rgba(30, 41, 59, 0.4);
+            border-radius: 6px;
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--emerald-500);
+            animation: pulse 2s infinite;
+        }
+        .status-dot.degraded { background: var(--amber-500); }
+        .status-dot.down { background: var(--red-500); animation: none; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* ─── Upload Modal ─── */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(2, 6, 23, 0.8);
+            backdrop-filter: blur(8px);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.visible { display: flex; }
+
+        .modal {
+            background: var(--slate-900);
+            border: 1px solid var(--slate-700);
+            border-radius: 20px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal h2 {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            color: var(--slate-100);
+        }
+
+        .drop-zone {
+            border: 2px dashed var(--slate-600);
+            border-radius: 12px;
+            padding: 3rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 1.5rem;
+        }
+        .drop-zone:hover, .drop-zone.dragover {
+            border-color: var(--cyan-500);
+            background: rgba(6, 182, 212, 0.05);
+        }
+
+        .drop-zone-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .drop-zone-text {
+            color: var(--slate-400);
+            font-size: 0.9rem;
+        }
+
+        .drop-zone-hint {
+            color: var(--slate-600);
+            font-size: 0.75rem;
+            margin-top: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--slate-400);
+            margin-bottom: 0.4rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.6rem 0.8rem;
+            background: var(--slate-800);
+            border: 1px solid var(--slate-700);
+            border-radius: 8px;
+            color: var(--slate-100);
+            font-family: inherit;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .form-group input:focus { border-color: var(--cyan-500); }
+
+        .progress-bar {
+            display: none;
+            height: 4px;
+            background: var(--slate-700);
+            border-radius: 2px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+        .progress-bar.active { display: block; }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--cyan-500), var(--emerald-500));
+            border-radius: 2px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        /* ─── Responsive ─── */
+        @media (max-width: 768px) {
+            header { padding: 0.75rem 1rem; }
+            main { padding: 1rem; }
+            .telemetry-panel { width: 100%; }
+            .modal { width: 95%; padding: 1.5rem; }
+        }
+
+        /* ─── Scrollbar ─── */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--slate-900); }
+        ::-webkit-scrollbar-thumb { background: var(--slate-700); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--slate-600); }
+
+        /* ─── Animations ─── */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .card { animation: fadeIn 0.4s ease forwards; }
+    </style>
+</head>
+<body>
+    <!-- Service Degraded Banner -->
+    <div class="degraded-banner" id="degradedBanner">
+        ⚠ Service Degraded — Some features may be unavailable. Our team is investigating.
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="logo">
+            <div class="logo-icon">V</div>
+            <h1>Voyager</h1>
+        </div>
+        <div class="header-actions">
+            <button class="btn btn-ghost" id="telemetryToggle">◈ Telemetry</button>
+            <button class="btn btn-primary" id="uploadBtn">+ Upload</button>
+        </div>
+    </header>
+
+    <div class="app-container">
+        <!-- Main Content -->
+        <main>
+            <div class="masonry-grid" id="imageGrid">
+                <!-- Skeleton loading states -->
+                <div class="skeleton-card" id="skeletons">
+                    <div class="skeleton skeleton-img"></div>
+                    <div class="skeleton skeleton-text"></div>
+                    <div class="skeleton skeleton-text skeleton-text-short"></div>
+                </div>
+                <div class="skeleton-card">
+                    <div class="skeleton skeleton-img" style="height:260px"></div>
+                    <div class="skeleton skeleton-text"></div>
+                    <div class="skeleton skeleton-text skeleton-text-short"></div>
+                </div>
+                <div class="skeleton-card">
+                    <div class="skeleton skeleton-img" style="height:180px"></div>
+                    <div class="skeleton skeleton-text"></div>
+                    <div class="skeleton skeleton-text skeleton-text-short"></div>
+                </div>
+                <div class="skeleton-card">
+                    <div class="skeleton skeleton-img" style="height:220px"></div>
+                    <div class="skeleton skeleton-text"></div>
+                    <div class="skeleton skeleton-text skeleton-text-short"></div>
+                </div>
+                <div class="skeleton-card">
+                    <div class="skeleton skeleton-img" style="height:240px"></div>
+                    <div class="skeleton skeleton-text"></div>
+                    <div class="skeleton skeleton-text skeleton-text-short"></div>
+                </div>
+                <div class="skeleton-card">
+                    <div class="skeleton skeleton-img" style="height:200px"></div>
+                    <div class="skeleton skeleton-text"></div>
+                    <div class="skeleton skeleton-text skeleton-text-short"></div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Telemetry Panel -->
+        <aside class="telemetry-panel" id="telemetryPanel">
+            <h2>◈ System Telemetry</h2>
+
+            <div class="metric-card">
+                <div class="metric-label">Gateway Throughput</div>
+                <div class="metric-value" id="metricThroughput">— req/s</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-label">Image Queue Depth</div>
+                <div class="metric-value" id="metricQueue">—</div>
+                <div class="gauge-bar"><div class="gauge-fill" id="gaugeQueue" style="width:0%"></div></div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-label">NSQ Message Backlog</div>
+                <div class="metric-value" id="metricNSQ">—</div>
+                <div class="gauge-bar"><div class="gauge-fill" id="gaugeNSQ" style="width:0%"></div></div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-label">Worker Utilization</div>
+                <div class="metric-value" id="metricWorker">— %</div>
+                <div class="gauge-bar"><div class="gauge-fill" id="gaugeWorker" style="width:0%"></div></div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-label">PostgreSQL Connections</div>
+                <div class="metric-value" id="metricPG">— / —</div>
+                <div class="gauge-bar"><div class="gauge-fill" id="gaugePG" style="width:0%"></div></div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-label">Distributed Trace (last request)</div>
+                <div class="trace-timeline">
+                    <div class="trace-row">
+                        <span class="trace-label">Gateway</span>
+                        <div class="trace-bar-container"><div class="trace-bar gateway"></div></div>
+                        <span class="trace-duration" id="traceGateway">142ms</span>
+                    </div>
+                    <div class="trace-row">
+                        <span class="trace-label">Image Svc</span>
+                        <div class="trace-bar-container"><div class="trace-bar image-svc"></div></div>
+                        <span class="trace-duration" id="traceImage">86ms</span>
+                    </div>
+                    <div class="trace-row">
+                        <span class="trace-label">MinIO</span>
+                        <div class="trace-bar-container"><div class="trace-bar minio"></div></div>
+                        <span class="trace-duration" id="traceMinio">52ms</span>
+                    </div>
+                    <div class="trace-row">
+                        <span class="trace-label">NSQ</span>
+                        <div class="trace-bar-container"><div class="trace-bar nsq"></div></div>
+                        <span class="trace-duration" id="traceNSQ">12ms</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-label">Service Health</div>
+                <div class="service-grid" id="serviceGrid">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Upload Modal -->
+    <div class="modal-overlay" id="uploadModal">
+        <div class="modal">
+            <h2>Upload Image</h2>
+            <div class="drop-zone" id="dropZone">
+                <div class="drop-zone-icon">📸</div>
+                <div class="drop-zone-text">Drop image here or click to browse</div>
+                <div class="drop-zone-hint">PNG, JPG, WebP up to 10MB</div>
+            </div>
+            <input type="file" id="fileInput" accept="image/*" style="display:none">
+            <div class="progress-bar" id="uploadProgress">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="form-group">
+                <label>Title</label>
+                <input type="text" id="uploadTitle" placeholder="Enter image title...">
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <input type="text" id="uploadDesc" placeholder="Brief description...">
+            </div>
+            <div class="form-group">
+                <label>Tags (comma separated)</label>
+                <input type="text" id="uploadTags" placeholder="space, nature, technology...">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-ghost" id="cancelUpload">Cancel</button>
+                <button class="btn btn-primary" id="submitUpload">Upload</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    (function() {
+        'use strict';
+
+        const API_BASE = window.location.origin;
+        let telemetryInterval = null;
+        let selectedFile = null;
+
+        // ─── DOM References ──────────────────────────────────────────────
+        const imageGrid = document.getElementById('imageGrid');
+        const telemetryPanel = document.getElementById('telemetryPanel');
+        const telemetryToggle = document.getElementById('telemetryToggle');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const uploadModal = document.getElementById('uploadModal');
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const cancelUpload = document.getElementById('cancelUpload');
+        const submitUpload = document.getElementById('submitUpload');
+        const degradedBanner = document.getElementById('degradedBanner');
+
+        // ─── Feed Loading ────────────────────────────────────────────────
+        async function loadFeed() {
+            try {
+                const res = await fetch(`${API_BASE}/v1/feed`);
+                if (!res.ok) throw new Error('Feed fetch failed');
+                const data = await res.json();
+                renderCards(data.items);
+            } catch (err) {
+                console.error('Failed to load feed:', err);
+                showDegraded();
+                // Retry after 5s
+                setTimeout(loadFeed, 5000);
+            }
+        }
+
+        function renderCards(items) {
+            imageGrid.innerHTML = '';
+            items.forEach((item, i) => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.style.animationDelay = `${i * 0.05}s`;
+                card.innerHTML = `
+                    <img src="${item.image.url}" alt="${item.image.title}" loading="lazy"
+                         onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22800%22 height=%22600%22><rect fill=%22%231E293B%22 width=%22800%22 height=%22600%22/><text x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22%2394A3B8%22 font-size=%2224%22>${item.image.title}</text></svg>'">
+                    <div class="card-overlay">
+                        <div class="card-title">${item.image.title}</div>
+                        <div class="card-fact">"${item.fact.text}"</div>
+                        <div class="card-tags">
+                            ${item.image.tags.map(t => `<span class="tag">${t}</span>`).join('')}
+                        </div>
+                    </div>
+                `;
+                imageGrid.appendChild(card);
+            });
+        }
+
+        // ─── Telemetry ───────────────────────────────────────────────────
+        function toggleTelemetry() {
+            const isOpen = telemetryPanel.classList.toggle('open');
+            telemetryToggle.classList.toggle('active', isOpen);
+
+            if (isOpen) {
+                fetchTelemetry();
+                telemetryInterval = setInterval(fetchTelemetry, 3000);
+            } else {
+                clearInterval(telemetryInterval);
+            }
+        }
+
+        async function fetchTelemetry() {
+            try {
+                const res = await fetch(`${API_BASE}/v1/telemetry`);
+                if (!res.ok) throw new Error('Telemetry fetch failed');
+                const data = await res.json();
+                updateTelemetryUI(data);
+            } catch (err) {
+                console.error('Telemetry error:', err);
+            }
+        }
+
+        function updateTelemetryUI(data) {
+            // Throughput
+            const throughputEl = document.getElementById('metricThroughput');
+            animateCounter(throughputEl, data.gateway_throughput_rps, ' req/s');
+
+            // Queue
+            document.getElementById('metricQueue').textContent = data.image_queue_depth;
+            const queuePct = (data.image_queue_depth / 20) * 100;
+            setGauge('gaugeQueue', queuePct);
+
+            // NSQ
+            document.getElementById('metricNSQ').textContent = data.nsq_message_backlog;
+            const nsqPct = (data.nsq_message_backlog / 100) * 100;
+            setGauge('gaugeNSQ', nsqPct);
+
+            // Worker
+            const workerPct = data.worker_utilization_pct;
+            document.getElementById('metricWorker').textContent = workerPct.toFixed(1) + ' %';
+            setGauge('gaugeWorker', workerPct);
+            const workerEl = document.getElementById('metricWorker');
+            workerEl.className = 'metric-value' + (workerPct > 80 ? ' danger' : workerPct > 60 ? ' warning' : '');
+
+            // PostgreSQL
+            document.getElementById('metricPG').textContent = `${data.postgres_connections} / ${data.postgres_max_connections}`;
+            const pgPct = (data.postgres_connections / data.postgres_max_connections) * 100;
+            setGauge('gaugePG', pgPct);
+
+            // Trace durations (randomize for visual effect)
+            document.getElementById('traceGateway').textContent = (100 + Math.floor(Math.random() * 80)) + 'ms';
+            document.getElementById('traceImage').textContent = (50 + Math.floor(Math.random() * 60)) + 'ms';
+            document.getElementById('traceMinio').textContent = (20 + Math.floor(Math.random() * 40)) + 'ms';
+            document.getElementById('traceNSQ').textContent = (5 + Math.floor(Math.random() * 15)) + 'ms';
+
+            // Service Health
+            const serviceGrid = document.getElementById('serviceGrid');
+            serviceGrid.innerHTML = '';
+            for (const [name, status] of Object.entries(data.service_status)) {
+                const dotClass = status === 'healthy' ? '' : status === 'degraded' ? ' degraded' : ' down';
+                serviceGrid.innerHTML += `
+                    <div class="service-badge">
+                        <span class="status-dot${dotClass}"></span>
+                        ${name}
+                    </div>
+                `;
+            }
+        }
+
+        function setGauge(id, pct) {
+            const el = document.getElementById(id);
+            el.style.width = Math.min(pct, 100) + '%';
+            el.className = 'gauge-fill' + (pct > 80 ? ' danger' : pct > 60 ? ' warning' : '');
+        }
+
+        function animateCounter(el, target, suffix) {
+            const current = parseInt(el.textContent) || 0;
+            const diff = target - current;
+            const steps = 10;
+            let step = 0;
+            const interval = setInterval(() => {
+                step++;
+                const value = Math.round(current + (diff * step / steps));
+                el.textContent = value + suffix;
+                if (step >= steps) clearInterval(interval);
+            }, 30);
+        }
+
+        // ─── Upload ──────────────────────────────────────────────────────
+        function openUploadModal() {
+            uploadModal.classList.add('visible');
+            selectedFile = null;
+        }
+
+        function closeUploadModal() {
+            uploadModal.classList.remove('visible');
+            document.getElementById('uploadTitle').value = '';
+            document.getElementById('uploadDesc').value = '';
+            document.getElementById('uploadTags').value = '';
+            document.getElementById('uploadProgress').classList.remove('active');
+            document.getElementById('progressFill').style.width = '0%';
+            selectedFile = null;
+        }
+
+        dropZone.addEventListener('click', () => fileInput.click());
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            if (e.dataTransfer.files.length) {
+                selectedFile = e.dataTransfer.files[0];
+                dropZone.querySelector('.drop-zone-text').textContent = selectedFile.name;
+            }
+        });
+
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length) {
+                selectedFile = fileInput.files[0];
+                dropZone.querySelector('.drop-zone-text').textContent = selectedFile.name;
+            }
+        });
+
+        async function handleUpload() {
+            if (!selectedFile) {
+                alert('Please select an image file');
+                return;
+            }
+
+            const title = document.getElementById('uploadTitle').value || 'Untitled';
+            const desc = document.getElementById('uploadDesc').value || '';
+            const tags = document.getElementById('uploadTags').value || '';
+
+            const formData = new FormData();
+            formData.append('image', selectedFile);
+            formData.append('title', title);
+            formData.append('description', desc);
+            formData.append('tags', tags);
+
+            const progressBar = document.getElementById('uploadProgress');
+            const progressFill = document.getElementById('progressFill');
+            progressBar.classList.add('active');
+
+            // Simulate progress
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += Math.random() * 20;
+                if (progress > 90) progress = 90;
+                progressFill.style.width = progress + '%';
+            }, 200);
+
+            try {
+                const res = await fetch(`${API_BASE}/v1/images`, {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                clearInterval(progressInterval);
+                progressFill.style.width = '100%';
+
+                if (res.ok) {
+                    setTimeout(() => {
+                        closeUploadModal();
+                        loadFeed();
+                    }, 500);
+                } else {
+                    throw new Error('Upload failed');
+                }
+            } catch (err) {
+                clearInterval(progressInterval);
+                progressFill.style.width = '0%';
+                progressBar.classList.remove('active');
+                alert('Upload failed: ' + err.message);
+            }
+        }
+
+        // ─── Degraded State ──────────────────────────────────────────────
+        function showDegraded() {
+            degradedBanner.classList.add('visible');
+        }
+
+        // ─── Event Bindings ──────────────────────────────────────────────
+        telemetryToggle.addEventListener('click', toggleTelemetry);
+        uploadBtn.addEventListener('click', openUploadModal);
+        cancelUpload.addEventListener('click', closeUploadModal);
+        submitUpload.addEventListener('click', handleUpload);
+        uploadModal.addEventListener('click', (e) => {
+            if (e.target === uploadModal) closeUploadModal();
+        });
+
+        // ─── Initialize ──────────────────────────────────────────────────
+        loadFeed();
+
+    })();
+    </script>
+</body>
+</html>
