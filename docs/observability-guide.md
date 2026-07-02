@@ -34,39 +34,39 @@ This document describes how to observe the Voyager system running locally via `d
 
 Build a dashboard with these panels:
 
-- **Request Rate** — Graph panel
+- **Request Rate** Graph panel
   ```promql
   rate(voyager_gateway_requests_total[5m])
   ```
 
-- **Request Duration (p95)** — Graph panel
+- **Request Duration (p95)** Graph panel
   ```promql
   histogram_quantile(0.95, rate(voyager_gateway_request_duration_seconds_bucket[5m]))
   ```
 
-- **Error Rate** — Stat panel
+- **Error Rate** Stat panel
   ```promql
   sum(rate(voyager_gateway_requests_total{status=~"5.."}[5m])) / sum(rate(voyager_gateway_requests_total[5m]))
   ```
 
-- **Active Connections** — Gauge
+- **Active Connections** Gauge
   ```promql
   voyager_gateway_active_connections
   ```
 
 #### 2. Image Processing Pipeline
 
-- **Queue Depth** — shows backpressure in the image upload pipeline
+- **Queue Depth** shows backpressure in the image upload pipeline
   ```promql
   voyager_image_queue_depth
   ```
 
-- **Processing Latency** — time from upload to thumbnail generation
+- **Processing Latency** time from upload to thumbnail generation
   ```promql
   histogram_quantile(0.99, rate(voyager_image_processing_duration_seconds_bucket[5m]))
   ```
 
-- **Worker Throughput** — images processed per second
+- **Worker Throughput** images processed per second
   ```promql
   rate(voyager_worker_images_processed_total[5m])
   ```
@@ -186,9 +186,9 @@ OTEL_EXPORTER_OTLP_ENDPOINT=http://tempo:4317
 
 #### Topics
 
-- **`image-uploaded`** — published when a new image is uploaded via the gateway
-- **`image-processed`** — published when worker finishes thumbnail generation
-- **`fact-requested`** — (optional) fact generation events
+- **`image-uploaded`** published when a new image is uploaded via the gateway
+- **`image-processed`** published when worker finishes thumbnail generation
+- **`fact-requested`** (optional) fact generation events
 
 #### Key Metrics
 
@@ -241,16 +241,16 @@ voyager-images/
 
 ### What to Verify
 
-- **Bucket exists** — If `voyager-images` doesn't exist, the image-svc should auto-create it on startup
-- **Object count** — Should match the number of uploaded images
-- **Object sizes** — Originals should be reasonable (< 10MB each)
-- **Access policy** — Bucket should be private (no public access)
+- **Bucket exists** If `voyager-images` doesn't exist, the image-svc should auto-create it on startup
+- **Object count** Should match the number of uploaded images
+- **Object sizes** Originals should be reasonable (< 10MB each)
+- **Access policy** Bucket should be private (no public access)
 
 ### Useful Operations
 
-- **Download** — Click any object to download and verify content
-- **Delete** — Remove test uploads to free space
-- **Metrics** — Check **Monitoring → Metrics** for:
+- **Download** Click any object to download and verify content
+- **Delete** Remove test uploads to free space
+- **Metrics** Check **Monitoring → Metrics** for:
   - Total storage used
   - Number of objects
   - API request rate

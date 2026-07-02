@@ -1,4 +1,4 @@
-# Voyager — Full Local Development Stack
+# Voyager Full Local Development Stack
 # Usage: docker compose up --build
 # Dashboard: http://localhost:8080 (API Gateway + Frontend)
 
